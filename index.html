@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<title>Canvas Draw Undo Redo Tryout</title>
+        <!-- Bootstrap -->
+        <link href="./resources/css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="./resources/css/bootstrap-responsive.css" rel="stylesheet" media="screen">
+        <link href="./resources/css/datepicker.css" rel="stylesheet" >
+        <link href="./resources/css/bootstrap-editable.css" rel="stylesheet" >
+
+        <script src="./resources/js/jquery1.8.3.js"></script>
+        <script src="./resources/js/jquery-ui-1.10.2.custom.min.js"></script>
+        <script src="./resources/js/bootstrap.js"></script>
+        <script src="./resources/js/bootstrap-editable.js"></script>
+        <script src="./resources/js/fapl-canvas.js"></script>
+        <script>
+        	jQuery(document).ready(function($){
+        		FaplCanvas.init('canvasView');
+				
+				FaplCanvas.undoListener = function(){
+					var $ele = $("[data-toggle='undo'].canvas-helper");
+					if(FaplCanvas.CACHE.undoImages.length == 0){
+						$ele.attr('disabled',true); 
+					}else{
+						$ele.attr('disabled',false);
+					}
+				}
+				
+				FaplCanvas.redoListener = function(){
+					var $ele = $("[data-toggle='redo'].canvas-helper");
+					if(FaplCanvas.CACHE.redoImages.length == 0){
+						$ele.attr('disabled',true); 
+					}else{
+						$ele.attr('disabled',false);
+					}
+				}
+				
+				// trigger at beginning
+				FaplCanvas.undoListener();
+				FaplCanvas.redoListener();
+				
+        		// binding icon behaviour
+        		$('.canvas-icon').click(function(){
+        			$('.canvas-icon').removeClass('btn-success');
+        			$(this).addClass('btn-success');
+        			FaplCanvas.setTool($(this).attr('data-toggle'));
+        		});
+
+        		//set default data toggle
+        		$('.canvas-icon').each(function(index){
+        			if($(this).hasClass('default-tool'))
+        				$(this).click();
+        		});
+
+                $('.canvas-helper').click(function(){
+                   if($(this).attr('data-toggle') == 'undo'){
+                        FaplCanvas.undoStep();
+                    }else{
+                        FaplCanvas.redoStep();
+					}
+                });
+				
+        	});
+        </script>
+
+
+		<style type="text/css">
+			#canvas-container { position: relative;}
+			#canvasView { border: 1px solid #000; }
+			#canvasTemp { position: absolute; top: 1px; left: 1px; }
+		</style>		
+	</head>
+	
+	<body>		
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="row-fluid">
+					<div class="span7">
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='erase'><i class="icon-edit"></i></a>
+						<a class="btn canvas-icon default-tool" href="javascript:void(0);" data-toggle='pencil'><i class="icon-pencil"></i></a>
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='rectangle'><i class="icon-stop"></i></a>
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='circle'><i class="icon-play-circle" alt="circle"></i></a>
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='oval'><i class="icon-leaf" alt="oval"></i></a>
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='line'><i class="icon-minus"></i></a>				
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='arrow'><i class="icon-arrow-right"></i></a>
+						<a class="btn canvas-icon" href="javascript:void(0);" data-toggle='font'><i class="icon-font"></i></a>
+					
+						<a class="btn btn-danger canvas-helper" href="javascript:void(0);" data-toggle='undo'>Undo</a>
+						<a class="btn btn-danger canvas-helper" href="javascript:void(0);" data-toggle='redo'>Redo</a>
+					</div>
+				</div>
+			</div>
+			<br />
+			<div class="row-fluid">
+				<div id="font-container" class="span5">
+					<div id="canvas-container">
+						<canvas id="canvasView" width="500" height="500" style="border: 1px solid #000;">
+						</canvas>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</body>
+</head>
