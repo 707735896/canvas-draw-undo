@@ -15,20 +15,21 @@
         <script src="./resources/js/fapl-canvas.js"></script>
         <script>
         	jQuery(document).ready(function($){
-        		FaplCanvas.init('canvasView');
+				x=new FaplCanvas('canvasView');
+			
 				
-				FaplCanvas.undoListener = function(){
+				FaplCanvas.prototype.undoListener = function(){
 					var $ele = $("[data-toggle='undo'].canvas-helper");
-					if(FaplCanvas.CACHE.undoImages.length == 0){
+					if(this.undoImages.length == 0){
 						$ele.attr('disabled',true); 
 					}else{
 						$ele.attr('disabled',false);
 					}
 				}
 				
-				FaplCanvas.redoListener = function(){
+				FaplCanvas.prototype.redoListener = function(){
 					var $ele = $("[data-toggle='redo'].canvas-helper");
-					if(FaplCanvas.CACHE.redoImages.length == 0){
+					if(this.redoImages.length == 0){
 						$ele.attr('disabled',true); 
 					}else{
 						$ele.attr('disabled',false);
@@ -36,14 +37,15 @@
 				}
 				
 				// trigger at beginning
-				FaplCanvas.undoListener();
-				FaplCanvas.redoListener();
+				x.undoListener();
+				x.redoListener();
+				
 				
         		// binding icon behaviour
         		$('.canvas-icon').click(function(){
         			$('.canvas-icon').removeClass('btn-success');
         			$(this).addClass('btn-success');
-        			FaplCanvas.setTool($(this).attr('data-toggle'));
+        			x.setTool($(this).attr('data-toggle'));
         		});
 
         		//set default data toggle
@@ -52,13 +54,16 @@
         				$(this).click();
         		});
 
+				
                 $('.canvas-helper').click(function(){
                    if($(this).attr('data-toggle') == 'undo'){
-                        FaplCanvas.undoStep();
+                        x.undoStep();
                     }else{
-                        FaplCanvas.redoStep();
+                        x.redoStep();
 					}
                 });
+				
+				
 				
         	});
         </script>

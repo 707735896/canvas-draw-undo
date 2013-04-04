@@ -1,9 +1,3 @@
-
-
-// -------------------------------------------------------------------------------------
-// FAPL CANVAS TOOLS
-// this is use for drawing event 
-// -------------------------------------------------------------------------------------
 if ((typeof FaplCanvasTools) === 'undefined') {
 	FaplCanvasTools = {};
 };
@@ -12,60 +6,58 @@ if ((typeof FaplCanvasTools) === 'undefined') {
 // FaplCanvasTools.pencil 
 // this is use for usual pen writing procedure 
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.pencil = function(){
+FaplCanvasTools.pencil = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
     // This is called when you start holding down the mouse button.
     // This starts the pencil drawing.
     this.mousedown = function (ev) {
-    	FaplCanvas.CACHE.context.beginPath();
-        FaplCanvas.CACHE.context.moveTo(ev._x, ev._y);
+    	tempContext.beginPath();
+        tempContext.moveTo(ev._x, ev._y);
         tool.started = true;
     };
-
 
      // This function is called every time you move the mouse. Obviously, it only 
     // draws if the tool.started state is set to true (when you are holding down 
     // the mouse button).
     this.mousemove = function (ev) {
-      if (tool.started) {
-        FaplCanvas.CACHE.context.lineTo(ev._x, ev._y);
-        FaplCanvas.CACHE.context.stroke();
-      }
+		if (tool.started) {
+			tempContext.lineTo(ev._x, ev._y);
+			tempContext.stroke();
+		}
     };
-
 
     // This is called when you release the mouse button.
     this.mouseup = function (ev) {
-      if (tool.started) {
-        tool.mousemove(ev);
-        tool.started = false;
-        FaplCanvas.paintImage();
-      }
+		if (tool.started) {
+			tool.mousemove(ev);
+			tool.started = false;
+			paintImage(canvas,tempCanvas);
+		}
     };
-
-
 };
+
 
 
 // -------------------------------------------------------------------------------------
 // FaplCanvasTools.erase 
 // this is use for erasing tools
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.erase = function(){
-
+FaplCanvasTools.erase = function(canvas, tempCanvas, paintImage){
+	var context = canvas.getContext("2d");
 	var tool = this;
     this.started = false;
     // This is called when you start holding down the mouse button.
     // This starts the pencil drawing.
     this.mousedown = function (ev) {
     	
-    	FaplCanvas.CACHE.contexto.globalCompositeOperation = "destination-out";
-		FaplCanvas.CACHE.contexto.strokeStyle = "rgba(0,0,0,100.0)";
-		FaplCanvas.CACHE.contexto.lineWidth = 10;
+    	context.globalCompositeOperation = "destination-out";
+		context.strokeStyle = "rgba(0,0,0,100.0)";
+		context.lineWidth = 10;
 
-    	FaplCanvas.CACHE.contexto.beginPath();
-        FaplCanvas.CACHE.contexto.moveTo(ev._x, ev._y);
+    	context.beginPath();
+        context.moveTo(ev._x, ev._y);
         tool.started = true;
     };
 
@@ -75,8 +67,8 @@ FaplCanvasTools.erase = function(){
     // the mouse button).
     this.mousemove = function (ev) {
       if (tool.started) {
-      	FaplCanvas.CACHE.contexto.lineTo(ev._x, ev._y);
-        FaplCanvas.CACHE.contexto.stroke();
+      	context.lineTo(ev._x, ev._y);
+        context.stroke();
       }
     };
 
@@ -94,7 +86,8 @@ FaplCanvasTools.erase = function(){
 // FaplCanvasTools.circle
 // this is use for drawing circle
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.circle = function(){
+FaplCanvasTools.circle = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
 
@@ -113,15 +106,15 @@ FaplCanvasTools.circle = function(){
           y = Math.min(ev._y,  tool.y0),
           r = Math.abs(ev._x - tool.x0);
 
-      FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
+      tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
      
       if (!r) {
         return;
       }
 
-	   FaplCanvas.CACHE.context.beginPath();
-	   FaplCanvas.CACHE.context.arc(x,y,r,0,2*Math.PI);
-	   FaplCanvas.CACHE.context.stroke();
+	   tempContext.beginPath();
+	   tempContext.arc(x,y,r,0,2*Math.PI);
+	   tempContext.stroke();
 	   
     };
 
@@ -129,17 +122,20 @@ FaplCanvasTools.circle = function(){
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        FaplCanvas.paintImage();
+		paintImage(canvas,tempCanvas);
       }
     };
 
 };
 
+
+
 // -------------------------------------------------------------------------------------
 // FaplCanvasTools.oval
 // this is use for drawing oval
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.oval = function(){
+FaplCanvasTools.oval = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
 
@@ -158,28 +154,28 @@ FaplCanvasTools.oval = function(){
           y = Math.min(ev._y,  tool.y0),
           r = Math.abs(ev._x - tool.x0);
 
-      FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
+      tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
      
       if (!r) {
         return;
       }
 	  // save state
-      FaplCanvas.CACHE.context.save();
+      tempContext.save();
 	  
 	  // translate context
-    //  FaplCanvas.CACHE.context.translate(FaplCanvas.CACHE.canvas.width / 2, FaplCanvas.CACHE.canvas.height / 2);
+    //  tempContext.translate(FaplCanvas.CACHE.canvas.width / 2, FaplCanvas.CACHE.canvas.height / 2);
 
       // scale context horizontally
-      FaplCanvas.CACHE.context.scale(2, 1);
+      tempContext.scale(2, 1);
 
       // draw circle which will be stretched into an oval
-      FaplCanvas.CACHE.context.beginPath();
-      FaplCanvas.CACHE.context.arc(x, y, r, 0, 2 * Math.PI, false);
+      tempContext.beginPath();
+      tempContext.arc(x, y, r, 0, 2 * Math.PI, false);
   
    // restore to original state
-      FaplCanvas.CACHE.context.restore();
+      tempContext.restore();
 	  
-      FaplCanvas.CACHE.context.stroke();  
+      tempContext.stroke();  
 	  
 	};
 
@@ -187,17 +183,19 @@ FaplCanvasTools.oval = function(){
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        FaplCanvas.paintImage();
+        paintImage(canvas,tempCanvas);
       }
     };
 
 };
 
+
 // -------------------------------------------------------------------------------------
 // FaplCanvasTools.line 
 // this is use for drawing straight line
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.line = function(){
+FaplCanvasTools.line = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
 
@@ -212,20 +210,20 @@ FaplCanvasTools.line = function(){
         return;
       }
 
-      FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
+      tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-      FaplCanvas.CACHE.context.beginPath();
-      FaplCanvas.CACHE.context.moveTo(tool.x0, tool.y0);
-      FaplCanvas.CACHE.context.lineTo(ev._x,   ev._y);
-      FaplCanvas.CACHE.context.stroke();
-      FaplCanvas.CACHE.context.closePath();
+      tempContext.beginPath();
+      tempContext.moveTo(tool.x0, tool.y0);
+      tempContext.lineTo(ev._x,   ev._y);
+      tempContext.stroke();
+      tempContext.closePath();
     };
 
     this.mouseup = function (ev) {
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        FaplCanvas.paintImage();
+        paintImage(canvas,tempCanvas);
       }
     };
 };
@@ -236,7 +234,8 @@ FaplCanvasTools.line = function(){
 // FaplCanvasTools.rectangle 
 // this is use for drawing straight rectangle
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.rectangle = function(){
+FaplCanvasTools.rectangle = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
 
@@ -256,20 +255,20 @@ FaplCanvasTools.rectangle = function(){
           w = Math.abs(ev._x - tool.x0),
           h = Math.abs(ev._y - tool.y0);
 
-      FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
-
+      tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+	  
       if (!w || !h) {
         return;
       }
 
-      FaplCanvas.CACHE.context.strokeRect(x, y, w, h);
+      tempContext.strokeRect(x, y, w, h);
     };
 
     this.mouseup = function (ev) {
       if (tool.started) {
         tool.mousemove(ev);
         tool.started = false;
-        FaplCanvas.paintImage();
+        paintImage(canvas,tempCanvas);
       }
     };
 
@@ -279,7 +278,8 @@ FaplCanvasTools.rectangle = function(){
 // FaplCanvasTools.arrow 
 // this is use for drawing  arrow line
 // -------------------------------------------------------------------------------------
-FaplCanvasTools.arrow = function(){
+FaplCanvasTools.arrow = function(canvas, tempCanvas, paintImage){
+	var tempContext = tempCanvas.getContext("2d");
 	var tool = this;
     this.started = false;
 
@@ -294,11 +294,11 @@ FaplCanvasTools.arrow = function(){
         return;
       }
 
-      FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
-
-      FaplCanvas.CACHE.context.beginPath();
-      FaplCanvas.CACHE.context.moveTo(tool.x0, tool.y0);
-      FaplCanvas.CACHE.context.lineTo(ev._x,   ev._y);
+      tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+	  
+      tempContext.beginPath();
+      tempContext.moveTo(tool.x0, tool.y0);
+      tempContext.lineTo(ev._x,   ev._y);
       
       // need to calculate the arch
       var arrowHeadLength = 12;
@@ -325,13 +325,13 @@ FaplCanvasTools.arrow = function(){
 		x4 = ev._x - arrowHeadLength * Math.cos(end2);
 	  }
 
-      FaplCanvas.CACHE.context.lineTo(x3,   y3);
-      FaplCanvas.CACHE.context.lineTo(x4,   y4);
-      FaplCanvas.CACHE.context.lineTo(ev._x,   ev._y);
+      tempContext.lineTo(x3,   y3);
+      tempContext.lineTo(x4,   y4);
+      tempContext.lineTo(ev._x,   ev._y);
       
 
-	  FaplCanvas.CACHE.context.stroke();
-      FaplCanvas.CACHE.context.closePath();
+	  tempContext.stroke();
+      tempContext.closePath();
     };
 
     this.mouseup = function (ev) {
@@ -339,7 +339,7 @@ FaplCanvasTools.arrow = function(){
       
         tool.mousemove(ev);
         tool.started = false;
-        FaplCanvas.paintImage();
+        paintImage(canvas,tempCanvas);
       }
     };
 
@@ -384,9 +384,6 @@ FaplCanvasTools.font = function(){
             }
 
           });
-      
-      //ev.stopPropagation();
-      //$(fontEl).editable('toggle');
     };
 
 };
@@ -394,157 +391,139 @@ FaplCanvasTools.font = function(){
 
 
 
-// -------------------------------------------------------------------------------------
-// FAPL CANVAS - Initial declaration
-// -------------------------------------------------------------------------------------
 
-if ((typeof FaplCanvas) === 'undefined') {
-  FaplCanvas = {
-  	TOOLS_TYPE : {
-  		ERASE : 'erase',
-  		PENCIL : 'pencil',
-  		LINE : 'line',
-  		CIRCLE : 'circle',
-		OVAL : 'oval',
-  		RECTANGLE : 'rectangle',
-  		ARROW : 'arrow',
-		FONT : 'font',
-  	}
-  };
-};
 
+
+
+function FaplCanvas(canvasId){
+	this.canvas = document.getElementById(canvasId);
+	this.context = this.canvas.getContext('2d');
+
+	var container = this.canvas.parentNode;
+    this.tempCanvas = document.createElement('canvas');
+
+    this.tempCanvas.id     = 'canvasTemp';
+    this.tempCanvas.width  = this.canvas.width;
+    this.tempCanvas.height = this.canvas.height;
+    container.appendChild(this.tempCanvas);
+
+    this.tempContext = this.tempCanvas.getContext('2d');
+
+	this.tempCanvas.faplCanvas = this;
+    this.tempCanvas.addEventListener('mousedown', this.eventMouseAction, false);
+    this.tempCanvas.addEventListener('mousemove', this.eventMouseAction, false);
+    this.tempCanvas.addEventListener('mouseup',   this.eventMouseAction, false);
+	
+	this.undoImages = [];
+	this.redoImages = [];
+	this.setTool(this.TOOLS_TYPE.PENCIL);
+}
+
+
+FaplCanvas.prototype.TOOLS_TYPE = {
+	ERASE : 'erase',
+	PENCIL : 'pencil',
+	LINE : 'line',
+	CIRCLE : 'circle',
+	OVAL : 'oval',
+	RECTANGLE : 'rectangle',
+	ARROW : 'arrow',
+	FONT : 'font',
+}
 
 
 // -------------------------------------------------------------------------------------
 // Used to define what is the current selected tools
 // -------------------------------------------------------------------------------------
-FaplCanvas.SELECTED_TOOL = {
-  toolType : FaplCanvas.TOOLS_TYPE.PENCIL,
-	tool : new FaplCanvasTools['pencil'](),
+
+FaplCanvas.prototype.SELECTED_TOOL = {
+/*
+	toolType : TOOLS_TYPE.PENCIL,
+	tool : null,
 	color : '#000000'
+	*/
 };
-
-
-// -------------------------------------------------------------------------------------
-// Used to define what is the current selected tools
-// -------------------------------------------------------------------------------------
-FaplCanvas.CACHE = {
-	canvas : {}, // for temp canvas
-	context : {}, // for temp context
-	canvaso : {}, // original canvas
-	contexto : {}, // original context
-  //drawStep : -1, // for every stroke or action done by use.
-  undoImages : [], // keep the steps of user drawn images
-  redoImages : [] // keep the steps of user drawn images
-};
-
-
-// -------------------------------------------------------------------------------------
-// Initialisation. code start from here
-// -------------------------------------------------------------------------------------
-FaplCanvas.init = function(canvasId){
-
-	FaplCanvas.CACHE.canvaso = document.getElementById(canvasId);
-	FaplCanvas.CACHE.contexto = FaplCanvas.CACHE.canvaso.getContext('2d');
-
-	var container = FaplCanvas.CACHE.canvaso.parentNode;//FaplCanvas.CACHE.canvaso.parent();
-    FaplCanvas.CACHE.canvas = document.createElement('canvas');
-
-    FaplCanvas.CACHE.canvas.id     = 'canvasTemp';
-    FaplCanvas.CACHE.canvas.width  = FaplCanvas.CACHE.canvaso.width;
-    FaplCanvas.CACHE.canvas.height = FaplCanvas.CACHE.canvaso.height;
-    container.appendChild(FaplCanvas.CACHE.canvas);
-
-    FaplCanvas.CACHE.context = FaplCanvas.CACHE.canvas.getContext('2d');
-
-    FaplCanvas.CACHE.canvas.addEventListener('mousedown', FaplCanvas.eventMouseAction, false);
-    FaplCanvas.CACHE.canvas.addEventListener('mousemove', FaplCanvas.eventMouseAction, false);
-    FaplCanvas.CACHE.canvas.addEventListener('mouseup',   FaplCanvas.eventMouseAction, false);
-
-    
-};
-
 
 // -------------------------------------------------------------------------------------
 // Shorthand method to set the tool for canvas
 // -------------------------------------------------------------------------------------
-FaplCanvas.setTool = function(tool){
-	FaplCanvas.SELECTED_TOOL.tool = new FaplCanvasTools[tool]();
-  FaplCanvas.SELECTED_TOOL.toolType = tool;
+FaplCanvas.prototype.setTool = function(tool){
+	console.log('set tool ' + tool);
+	this.SELECTED_TOOL.tool = new FaplCanvasTools[tool](this.canvas,this.tempCanvas,this.paintImage);
+	this.SELECTED_TOOL.toolType = tool;
+	this.SELECTED_TOOL.color = '#000000';
+	console.log("end set tool ");
 };
-
 
 // -------------------------------------------------------------------------------------
 // private function to handle the mouse event. do not call from out side of this class
 // -------------------------------------------------------------------------------------
-FaplCanvas.eventMouseAction = function(ev){
-	//console.log('event mouse action');
-	//console.log(ev.type);
-  FaplCanvas.pushUndo(ev);
+FaplCanvas.prototype.eventMouseAction = function(ev){
+	this.faplCanvas.pushUndo(ev);
 	if (ev.layerX || ev.layerX == 0) { // Firefox
-      ev._x = ev.layerX;
-      ev._y = ev.layerY;
-    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
-      ev._x = ev.offsetX;
-      ev._y = ev.offsetY;
-    }
-    // Call the event handler of the tool.
-    var func = FaplCanvas.SELECTED_TOOL.tool[ev.type];
-    if (func) {
-      func(ev);
-    }
-
+		ev._x = ev.layerX;
+		ev._y = ev.layerY;
+	} else if (ev.offsetX || ev.offsetX == 0) { // Opera
+		ev._x = ev.offsetX;
+		ev._y = ev.offsetY;
+	}
+	// Call the event handler of the tool.
+	var func = this.faplCanvas.SELECTED_TOOL.tool[ev.type];
+	if (func) {
+		func(ev);
+	}
 };
 
 // -------------------------------------------------------------------------------------
 // used to draw the image to actual canvas.
 // -------------------------------------------------------------------------------------
-FaplCanvas.paintImage = function(){
-  
-  FaplCanvas.CACHE.contexto.globalCompositeOperation = 'source-over';
-  FaplCanvas.CACHE.contexto.strokeStyle = '#000000';
-  FaplCanvas.CACHE.contexto.lineWidth = 1;
+FaplCanvas.prototype.paintImage = function(canvas,tempCanvas){
+	var context=canvas.getContext("2d");
+	var tempContext=tempCanvas.getContext("2d");
+	context.globalCompositeOperation = 'source-over';
+	context.strokeStyle = '#000000';
+	context.lineWidth = 1;
 
-	FaplCanvas.CACHE.contexto.drawImage(FaplCanvas.CACHE.canvas, 0, 0);
-	FaplCanvas.CACHE.context.clearRect(0, 0, FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
+	context.drawImage(tempCanvas, 0, 0);
+	tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+	console.log('paint ' + canvas.toDataURL().length);
 };
-
-
 
 // -------------------------------------------------------------------------------------
 // Preparation to store the previous drawn step by user
 // -------------------------------------------------------------------------------------
-FaplCanvas.pushUndo = function(ev){
-  if(FaplCanvas.isValidMovement(ev)){
-    FaplCanvas.CACHE.redoImages = [];
-    FaplCanvas.CACHE.undoImages.push(FaplCanvas.CACHE.canvaso.toDataURL());
-	FaplCanvas.undoRedoListener()
-  }
+FaplCanvas.prototype.pushUndo = function(ev){
+	if(this.isValidMovement(ev)){
+		console.log('push undo: ' + this.canvas.toDataURL().length);
+		this.redoImages = [];
+		this.undoImages.push(this.canvas.toDataURL());
+		this.undoRedoListener()
+	}
 };
-		
 
 // -------------------------------------------------------------------------------------
 // Undo functionality
 // -------------------------------------------------------------------------------------
-FaplCanvas.undoStep = function(){
-  var imageData = FaplCanvas.CACHE.undoImages.pop();
-  if(!(typeof imageData === 'undefined')){
-    // need to work on redo
-    FaplCanvas.CACHE.redoImages.push(FaplCanvas.CACHE.canvaso.toDataURL());
-    FaplCanvas.loadImage(imageData);
-	FaplCanvas.undoRedoListener();
-  }
+FaplCanvas.prototype.undoStep = function(){
+	console.log('undo');
+	var imageData = this.undoImages.pop();
+	if(!(typeof imageData === 'undefined')){
+		// need to work on redo
+		this.redoImages.push(this.canvas.toDataURL());
+		this.loadImage(imageData);
+		this.undoRedoListener();
+	}
 };
 
 // -------------------------------------------------------------------------------------
 // Redo Functionality
 // -------------------------------------------------------------------------------------
-FaplCanvas.redoStep = function(){
-  var imageData = FaplCanvas.CACHE.redoImages.pop();
+FaplCanvas.prototype.redoStep = function(){
+  var imageData = this.redoImages.pop();
   if(!(typeof imageData === 'undefined')){
-    FaplCanvas.CACHE.undoImages.push(FaplCanvas.CACHE.canvaso.toDataURL());
-	FaplCanvas.loadImage(imageData);
-    FaplCanvas.undoRedoListener();
+    this.undoImages.push(this.canvas.toDataURL());
+	this.loadImage(imageData);
+    this.undoRedoListener();
   }
   
 };
@@ -553,38 +532,34 @@ FaplCanvas.redoStep = function(){
 // -------------------------------------------------------------------------------------
 // Load the image to canvas
 // -------------------------------------------------------------------------------------
-FaplCanvas.loadImage = function(imageData){
-//  console.log(imageData);
-  $("<img/>").load(function(e) {
-    FaplCanvas.CACHE.contexto.clearRect(0, 0, FaplCanvas.CACHE.canvaso.width, FaplCanvas.CACHE.canvaso.height);
-    FaplCanvas.CACHE.contexto.drawImage(this, 0, 0);
-  }).attr("src",imageData);
-  
+FaplCanvas.prototype.loadImage = function(imageData){
+	var self = this;
+	$("<img/>").load(function(e) {
+		self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
+		self.context.drawImage(this, 0, 0);
+	}).attr("src",imageData);  
 };
 
 
 // -------------------------------------------------------------------------------------
 // To check for valid movement to undo ro redo store
 // -------------------------------------------------------------------------------------
-FaplCanvas.isValidMovement = function(ev){
-  
-  if('mousedown' == ev.type){
-    return (FaplCanvas.SELECTED_TOOL.toolType == FaplCanvas.TOOLS_TYPE.ERASE);
-  }else if ('mouseup' == ev.type){
-    return (! ((FaplCanvas.SELECTED_TOOL.toolType == FaplCanvas.TOOLS_TYPE.ERASE) || (FaplCanvas.SELECTED_TOOL.toolType == FaplCanvas.TOOLS_TYPE.FONT)));
-  }
-
-  return false;
+FaplCanvas.prototype.isValidMovement = function(ev){ 
+	if('mousedown' == ev.type){
+		return (this.SELECTED_TOOL.toolType == this.TOOLS_TYPE.ERASE);
+	}else if ('mouseup' == ev.type){
+		return (! ((this.SELECTED_TOOL.toolType == this.TOOLS_TYPE.ERASE) || (this.SELECTED_TOOL.toolType == this.TOOLS_TYPE.FONT)));
+	}
+	return false;
 };
 
 
-FaplCanvas.undoRedoListener = function(){
-	FaplCanvas.undoListener();
-    FaplCanvas.redoListener();
+FaplCanvas.prototype.undoRedoListener = function(){
+	this.undoListener();
+    this.redoListener();
 }
 
-FaplCanvas.clearCanvas = function(){
-	FaplCanvas.CACHE.contexto.clearRect(0,0,FaplCanvas.CACHE.canvaso.width, FaplCanvas.CACHE.canvaso.height);
-	FaplCanvas.CACHE.context.clearRect(0,0,FaplCanvas.CACHE.canvas.width, FaplCanvas.CACHE.canvas.height);
+FaplCanvas.prototype.clearCanvas = function(){
+	this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+	this.tempcontext.clearRect(0,0,this.tempCanvas.width, this.tempCanvas.height);
 }
-
